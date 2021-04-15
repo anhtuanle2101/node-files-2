@@ -24,16 +24,22 @@ function cat(path, out){
         }
         //success
         //print data
+        console.log("Path: ",path);
         console.log(data);
-        output(out, data);
+        if (out){
+            output(out, data);
+        }
     })
 }
 
 function webCat(url, out){
     axios.get(url)
     .then(res=> {
+        console.log("URL: ", url);
         console.log(res.data);
-        output(out, res.data);
+        if (out){
+            output(out, res.data);
+        }
     })
     .catch(err=> {
         console.log("Error fetching ", url);
@@ -41,29 +47,33 @@ function webCat(url, out){
     });
 }
 
-if (process.argv.length == 3){
-    const arg = process.argv[2];
+function proceed(arg){
     if (arg.startsWith("http:") || arg.startsWith("https:")){
+        //url
         webCat(arg);
     }else{
+        //path
         cat(arg);
     }
-}if (process.argv.length==5){
-    if (process.argv[2]=='--out'){
-        const out = process.argv[3];
-        const arg = process.argv[4];
-        if (arg.startsWith("http:") || arg.startsWith("https:")){
-            webCat(arg, out);
-        }else{
-            cat(arg, out);
-        }
-    }else{
-        //invalid parameters
-        console.log("invalid command");
-    }
 }
-else{
-    //should have only 3 parameters
-    console.log('Should have exact 3 or 5 parameters')
+
+if (process.argv.length == 3){
+    const arg = process.argv[2];
+    proceed(arg);
+}else if (process.argv[2]=='--out'){
+    const out = process.argv[3];
+    const arg = process.argv[4];
+    if (arg.startsWith("http:") || arg.startsWith("https:")){
+        webCat(arg, out);
+    }else{
+        cat(arg, out);
+    }
+}else if (process.argv[2] == '--seq'){
+    const seq = process.argv.slice(3,process.argv.length);
+    for (let arg of seq){
+        proceed(arg);
+    }
+}else{
+    console.log("invalid command");
 }
 
